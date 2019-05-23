@@ -34,12 +34,10 @@ const AmpSandbox = (iframe) => {
                 s.setAttribute('src', src)
                 Object.entries(attrs).forEach(([attr, val]) => s.setAttribute(attr, val))
                 document.head.appendChild(s)
-                // document.head.innerHTML += `<script async ${attrs} src="${src}"><\/script>`
             })
         },
         loadComponent (componentName) {
             const newComponent = document.createElement(componentName)
-            // console.log(window.customElements.get('amp-date-picker'))
             document.body.appendChild(newComponent)
             if (registeredElements.includes(componentName)) {
                 return
@@ -79,6 +77,12 @@ export default {
 }
 </script>
 
-<style>
-
+<style lang="scss" scoped>
+.amp-renderer {
+    &, & > iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+} 
 </style>

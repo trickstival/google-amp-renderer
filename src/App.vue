@@ -8,11 +8,18 @@
 * {
   box-sizing: border-box;
 }
-html, body {
-  height: 100%;
+body {
+  overflow: hidden;
+  min-height: 100%;
 }
 body, html{
   margin: 0;
+}
+body {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  float: left;
 }
 #app {
   min-height: 100%;

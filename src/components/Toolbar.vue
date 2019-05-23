@@ -1,24 +1,47 @@
 <template>
     <aside class="amp-toolbar">
-        <span>
+        <button @click="download">
             Download
-        </span>
+        </button>
         <div class="component-list">
-            <span
+            <button
                 v-for="component in $options.componentList"
                 @click="$store.commit('addAmpElements', component)"
                 :key="component.name">
-                {{ component.name }}
-            </span>
+                Adicionar {{ component.name }}
+            </button>
         </div>
     </aside>
 </template>
 
 <script>
 import { componentList } from './amp'
+
+const element = document.createElement('a')
+const download = (filename, text) => {
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text))
+  element.setAttribute('download', filename)
+  element.style.display = 'none'
+  document.body.appendChild(element)
+  element.click()
+  document.body.removeChild(element)
+}
 export default {
     componentList,
     methods: {
+        download () {
+            const iframe = document.querySelector('iframe')
+            const html = `<html>
+                <head>
+                    ${iframe.contentDocument.head.innerHTML}
+                </head>
+                <body>
+                    ${iframe.contentDocument.body.innerHTML}
+                </body>
+            </html>`
+
+            download('index.html', html)
+        }
     }
 }
 </script>
