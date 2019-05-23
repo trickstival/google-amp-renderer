@@ -6,7 +6,7 @@
         <div class="component-list">
             <span
                 v-for="component in $options.componentList"
-                @click="$store.commit('addToTree', component)"
+                @click="$store.commit('addAmpElements', component)"
                 :key="component.name">
                 {{ component.name }}
             </span>

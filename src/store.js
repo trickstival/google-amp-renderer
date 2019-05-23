@@ -5,11 +5,14 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    lastAmpChunk: [],
     ampTree: []
   },
   mutations: {
-    addToTree (state, payload) {
-      state.ampTree.push(payload)
+    addAmpElements (state, payload) {
+      const arraified = Array.isArray(payload) ? payload : [payload]
+      state.ampTree.push(arraified)
+      state.lastAmpChunk = arraified
     }
   },
   actions: {

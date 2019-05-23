@@ -1,6 +1,6 @@
 <template>
     <section class="amp-renderer">
-        <iframe ref="sandbox" sandbox="allow-scripts allow-same-origin"></iframe>
+        <iframe src="about:blank" ref="sandbox" sandbox="allow-scripts allow-same-origin"></iframe>
     </section>
 </template>
 
@@ -8,7 +8,10 @@
 import { mapState } from 'vuex'
 
 const AmpSandbox = (iframe) => {
-    iframe.contentDocument.open()
+    const document = iframe.contentDocument
+    const window = iframe.contentWindow
+    document.open()
+    document.close()
 
     // State
     const registeredElements = []
@@ -19,19 +22,38 @@ const AmpSandbox = (iframe) => {
          * @arg { String } src
          * @arg { String } attrs
          */
-        appendScript (src, attrs) {
-            iframe.contentDocument.write(`<script async ${attrs} src="${src}"><\/script>`)
+        appendScript (src, attrs = '') {
+            return new Promise((resolve) => {
+                const listener = () => {
+                    window.removeEventListener('load', listener)
+                    resolve()
+                }
+                window.addEventListener('load', listener)
+                const s = document.createElement('script')
+                s.setAttribute('async', '')
+                s.setAttribute('src', src)
+                Object.entries(attrs).forEach(([attr, val]) => s.setAttribute(attr, val))
+                document.head.appendChild(s)
+                // document.head.innerHTML += `<script async ${attrs} src="${src}"><\/script>`
+            })
         },
         loadComponent (componentName) {
+            const newComponent = document.createElement(componentName)
+            // console.log(window.customElements.get('amp-date-picker'))
+            document.body.appendChild(newComponent)
             if (registeredElements.includes(componentName)) {
                 return
             }
 
-            this.appendScript(`https://cdn.ampproject.org/v0/${componentName}-0.1.js`, 'custom-element')
+            this.appendScript(`https://cdn.ampproject.org/v0/${componentName}-0.1.js`, { 'custom-element': componentName })
+
             registeredElements.push(componentName)
         }
     }
     sandbox.appendScript('https://cdn.ampproject.org/v0.js')
+        .then(() => {
+
+        })
     return sandbox
 }
 
@@ -42,12 +64,12 @@ export default {
         }
     },
     watch: {
-        ampTree (ampTree) {
-            ampTree.forEach(comp => this.sandbox.loadComponent(comp.name))
+        lastAmpChunk (componentsChunk) {
+            componentsChunk.forEach(newComponent => this.sandbox.loadComponent(newComponent.name))
         }
     },
     computed: {
-        ...mapState(['ampTree'])
+        ...mapState(['lastAmpChunk'])
     },
     methods: {
     },
